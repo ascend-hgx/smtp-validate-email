@@ -396,6 +396,7 @@ class SMTP_Validate_Email {
     * @return void
     * @throws SMTP_Validate_Email_Exception_No_Connection
     * @throws SMTP_Validate_Email_Exception_No_Timeout
+    * @note replace stream_socket_client with $this->smtp_conn = fsockopen($host, $port, $errno, $errstr);
     */
     protected function connect($host) {
         $remote_socket = $host . ':' . $this->connect_port;
@@ -404,13 +405,11 @@ class SMTP_Validate_Email {
         $this->host = $remote_socket;
         // open connection
         $this->debug('Connecting to ' . $this->host);
-        $this->socket = @stream_socket_client(
-            $this->host,
+        $this->socket = @fsockopen(
+            $host,
+            $this->connect_port,
             $errnum,
-            $errstr,
-            $this->connect_timeout,
-            STREAM_CLIENT_CONNECT,
-            stream_context_create(array())
+            $errstr)
         );
         // connected?
         if (!$this->connected()) {
@@ -424,6 +423,34 @@ class SMTP_Validate_Email {
         }
         $this->debug('Connected to ' . $this->host . ' successfully');
     }
+//    protected function connect($host) {
+//        $remote_socket = $host . ':' . $this->connect_port;
+//        $errnum = 0;
+//        $errstr = '';
+//        $this->host = $remote_socket;
+//        // open connection
+//        $this->debug('Connecting to ' . $this->host);
+//        $this->socket = @stream_socket_client(
+//            $this->host,
+//            $errnum,
+//            $errstr,
+//            $this->connect_timeout,
+//            STREAM_CLIENT_CONNECT,
+//            stream_context_create(array())
+//        );
+//        // connected?
+//        if (!$this->connected()) {
+//            $this->debug('Connect failed: ' . $errstr . ', error number: ' . $errnum . ', host: ' . $this->host);
+//            throw new SMTP_Validate_Email_Exception_No_Connection('Cannot ' .
+//            'open a connection to remote host (' . $this->host . ')');
+//        }
+//        $result = stream_set_timeout($this->socket, $this->connect_timeout);
+//        if (!$result) {
+//            throw new SMTP_Validate_Email_Exception_No_Timeout('Cannot set timeout');
+//        }
+//        $this->debug('Connected to ' . $this->host . ' successfully');
+//    }
+
 
     /**
     * Disconnects the currently connected MTA.
