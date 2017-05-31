@@ -409,7 +409,7 @@ class SMTP_Validate_Email {
             $host,
             $this->connect_port,
             $errnum,
-            $errstr)
+            $errstr
         );
         // connected?
         if (!$this->connected()) {
